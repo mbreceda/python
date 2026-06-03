@@ -1,0 +1,5 @@
+uv init
+uv add pandas lxml rich 
+uv sync
+
+uv run black .
