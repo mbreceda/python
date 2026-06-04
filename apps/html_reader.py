@@ -1,6 +1,3 @@
-import io
-from urllib.request import Request, urlopen
-
 import pandas as pd
 
 # Rich uses Console to render text to the terminal.
@@ -9,24 +6,17 @@ from rich.console import Console
 # Rich uses Table to render tables to the terminal.
 from rich.table import Table
 
+from apps.protocols import Readable
 
-class TableViewer:
-    HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-    }
 
-    def __init__(self, url: str) -> None:
-        self.url = url
-        self.console = Console()
+class HTMLReader:
+    def __init__(self, request: Readable, console: Console | None = None) -> None:
+        self._request = request
+        self.console = console or Console()
 
     def get_dataframe(self, index: int = 0) -> pd.DataFrame:
         """Fetch all tables from the URL and return the one at the given index."""
-        req = Request(self.url, headers=self.HEADERS)
-
-        with urlopen(req) as response:
-            html = io.StringIO(response.read().decode("utf-8"))
-            dataframes = pd.read_html(html)
-
+        dataframes = pd.read_html(self._request.read_url())
         return dataframes[index]
 
     @staticmethod
